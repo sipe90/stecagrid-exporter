@@ -14,11 +14,6 @@ export const createMetrics = (metricPrefix: string, measurementsXml: Measurement
     getMeasurements(measurementsXml).forEach((m) => {
         const name = metricPrefix + m.$.Type
         const help = m.$.Type
-        const value = m.$.Value
-        if (!value) {
-            logger.info('Not registering metric %s since it doesn\'t provide a value', name)
-            return
-        }
         logger.debug('Registering gauge metric %s', name)
         register.registerMetric(
             new Gauge({ name, help })
@@ -30,10 +25,7 @@ export const updateMetrics = (metricPrefix: string, measurementsXml: Measurement
     logger.debug('Updating metrics')
     getMeasurements(measurementsXml).forEach((m) => {
         const metricName = metricPrefix + m.$.Type
-        const value = m.$.Value
-        if (!value) {
-            return
-        }
+        const value = m.$.Value ? parseFloat(m.$.Value) : 0
 
         const metric = register.getSingleMetric(metricName) as Gauge | undefined
         if (!metric) {
@@ -42,7 +34,7 @@ export const updateMetrics = (metricPrefix: string, measurementsXml: Measurement
         }
 
         logger.trace('Updating metric %s value to %d', metricName, value)
-        metric.set(parseFloat(m.$.Value!))
+        metric.set(value)
     })
 }
 
