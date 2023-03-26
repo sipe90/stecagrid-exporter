@@ -1,0 +1,33 @@
+{
+  "name": "stecagrid-exporter",
+  "version": "1.0.0",
+  "description": "Prometheus exporter for StecaGrid inverters",
+  "main": "./dist/index.js",
+  "bin": {
+    "stecagrid-exporter": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/index.js",
+    "dev": "nodemon -w src ./src/index.ts | pino-pretty"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "commander": "10.0.0",
+    "dotenv": "16.0.3",
+    "pino": "8.11.0",
+    "prom-client": "14.2.0",
+    "xml2js": "0.4.23"
+  },
+  "devDependencies": {
+    "@types/node": "18.15.10",
+    "@types/xml2js": "0.4.11",
+    "nodemon": "2.0.22",
+    "pino-pretty": "10.0.0",
+    "typescript": "5.0.2",
+    "ts-node": "10.9.1"
+  }
+}
