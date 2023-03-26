@@ -2,6 +2,7 @@ export interface Opts {
     host: string
     port: string
     prefix: string
+    interval: string
 }
 
 export interface MeasurementsXML {

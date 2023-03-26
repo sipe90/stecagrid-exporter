@@ -14,10 +14,11 @@ import { Opts } from './types'
             .version("1.0.0")
             .addOption(new Option('-h, --host <hostname>', 'StecaGrid inverter address').env('INVERTER_HOST').makeOptionMandatory(true))
             .addOption(new Option('-p, --port <port>', 'Exporter listen port').env('METRICS_PORT').default('9488'))
+            .addOption(new Option('-i, --interval', 'Polling interval in seconds').default('5'))
             .addOption(new Option('--prefix', 'Prefix to add to all metrics').env('METRIC_PREFIX').default('stecagrid_inverter_'))
             .parse()
 
-        const { port, host: stecaHost, prefix: metricPrefix } = program.opts<Opts>()
+        const { port, interval, host: stecaHost, prefix: metricPrefix } = program.opts<Opts>()
 
         try {
             const measurementsXml = await getMeasurements(stecaHost)
@@ -29,7 +30,13 @@ import { Opts } from './types'
             return process.exit(1)
         }
 
-        setInterval(async () => updateMetrics(metricPrefix, await getMeasurements(stecaHost)), 5000)
+        logger.info('Polling measurements with %d second interval', interval)
+        setInterval(async () =>
+            getMeasurements(stecaHost)
+                .catch((err) => logger.error(err, 'Failed to fetch measurements'))
+                .then((measurementsXml) => measurementsXml && updateMetrics(metricPrefix, measurementsXml))
+                .catch((err) => logger.error(err, 'Failed to update metrics'))
+            , parseInt(interval) * 1000)
 
         http.createServer((req, res) => {
             if (!req.url || !req.url.startsWith('/metrics')) {
